@@ -290,16 +290,16 @@ public class HitCalculator : IClientStatisticCalculator
         var matchingLocation = await GetOrAddHitLocation(hitInfo.Location, hitInfo.Game);
         var meansOfDeath = await GetOrAddMeansOfDeath(hitInfo.MeansOfDeath, hitInfo.Game);
 
-        var baseTasks = new[]
-        {
+        List<Task<EFClientHitStatistic>> baseTasks =
+        [
             // just the client
-            GetOrAddClientHit(hitInfo.EntityId, null),
+            GetOrAddClientHit(hitInfo.EntityId),
             // client and server
             GetOrAddClientHit(hitInfo.EntityId, serverId),
             // just the location
-            GetOrAddClientHit(hitInfo.EntityId, null, matchingLocation.HitLocationId),
+            GetOrAddClientHit(hitInfo.EntityId, hitLocationId: matchingLocation.HitLocationId),
             // location and server
-            GetOrAddClientHit(hitInfo.EntityId, serverId, matchingLocation.HitLocationId),
+            GetOrAddClientHit(hitInfo.EntityId, serverId, hitLocationId: matchingLocation.HitLocationId),
             // per weapon
             GetOrAddClientHit(hitInfo.EntityId, null, null, weapon.WeaponId),
             // per weapon and server
@@ -309,7 +309,7 @@ public class HitCalculator : IClientStatisticCalculator
             // means of death per server aggregate
             GetOrAddClientHit(hitInfo.EntityId, serverId,
                 meansOfDeathId: meansOfDeath.MeansOfDeathId)
-        };
+        ];
 
         var allTasks = baseTasks.AsEnumerable();
 
@@ -413,7 +413,7 @@ public class HitCalculator : IClientStatisticCalculator
         }
     }
 
-    private async Task<EFClientHitStatistic> GetOrAddClientHit(int clientId, long? serverId = null, string performanceBucket = null,
+    private async Task<EFClientHitStatistic> GetOrAddClientHit(int clientId, long? serverId = null, string performanceBucketCode = null,
         int? hitLocationId = null, int? weaponId = null, int? attachmentComboId = null,
         int? meansOfDeathId = null)
     {
@@ -425,7 +425,7 @@ public class HitCalculator : IClientStatisticCalculator
                                    && hit.WeaponId == weaponId
                                    && hit.WeaponAttachmentComboId == attachmentComboId
                                    && hit.MeansOfDeathId == meansOfDeathId
-                                   && (performanceBucket is not null && performanceBucket == hit.Server.PerformanceBucket || (performanceBucket is null && hit.ServerId == serverId)));
+                                   && (performanceBucketCode is not null && performanceBucketCode == hit.Server.PerformanceBucket.Code || (performanceBucketCode is null && hit.ServerId == serverId)));
 
         if (hitStat != null)
         {

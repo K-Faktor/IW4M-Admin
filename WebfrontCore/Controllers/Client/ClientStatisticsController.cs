@@ -35,7 +35,7 @@ namespace WebfrontCore.Controllers
             {
                 ClientId = id,
                 ServerEndpoint = serverId,
-                PerformanceBucket = performanceBucket
+                PerformanceBucketCode = performanceBucket
             }))?.Results?.First();
 
             if (hitInfo is null)

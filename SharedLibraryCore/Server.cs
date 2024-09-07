@@ -83,7 +83,7 @@ namespace SharedLibraryCore
             RConConnectionFactory = rconConnectionFactory;
             ServerLogger = logger;
             DefaultSettings = serviceProvider.GetRequiredService<DefaultSettings>();
-            PerformanceBucket = ServerConfig.PerformanceBucket;
+            PerformanceCode = ServerConfig.PerformanceBucketCode;
             InitializeTokens();
             InitializeAutoMessages();
         }
@@ -164,7 +164,7 @@ namespace SharedLibraryCore
         public bool IsInitialized { get; set; }
         public int Port { get; protected set; }
         public int ListenPort => Port;
-        public string PerformanceBucket { get; init; }
+        public string PerformanceCode { get; init; }
         public abstract Task Kick(string reason, EFClient target, EFClient origin, EFPenalty originalPenalty);
         public abstract Task<string[]> ExecuteCommandAsync(string command, CancellationToken token = default);
         public abstract Task SetDvarAsync(string name, object value, CancellationToken token = default);

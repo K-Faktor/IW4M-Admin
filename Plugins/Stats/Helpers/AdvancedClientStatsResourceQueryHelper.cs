@@ -66,8 +66,8 @@ namespace Stats.Helpers
                 .ThenInclude(attachment => attachment.Attachment3)
                 .Where(stat => stat.ClientId == query.ClientId);
 
-            iqHitStats = !string.IsNullOrEmpty(query.PerformanceBucket)
-                ? iqHitStats.Where(stat => stat.Server.PerformanceBucket == query.PerformanceBucket)
+            iqHitStats = !string.IsNullOrEmpty(query.PerformanceBucketCode)
+                ? iqHitStats.Where(stat => stat.Server.PerformanceBucket.Code == query.PerformanceBucketCode)
                 : iqHitStats.Where(stat => stat.ServerId == serverId);
 
             var hitStats = await iqHitStats.ToListAsync();
@@ -76,7 +76,7 @@ namespace Stats.Helpers
                 .Where(r => r.ClientId == clientInfo.ClientId)
                 .Where(r => r.ServerId == serverId)
                 .Where(r => r.Ranking != null)
-                .Where(r => r.PerformanceBucket == query.PerformanceBucket)
+                .Where(r => r.PerformanceBucket.Code == query.PerformanceBucketCode)
                 .OrderByDescending(r => r.CreatedDateTime)
                 .Take(250)
                 .ToListAsync();
@@ -85,7 +85,7 @@ namespace Stats.Helpers
             {
                 ClientId = query.ClientId,
                 ServerEndpoint = query.ServerEndpoint,
-                PerformanceBucket = query.PerformanceBucket
+                PerformanceBucketCode = query.PerformanceBucketCode
             })).Results.First();
 
             var mostRecentRanking = ratings.FirstOrDefault(ranking => ranking.Newest);
@@ -95,7 +95,7 @@ namespace Stats.Helpers
             var legacyStats = await context.Set<EFClientStatistics>()
                 .Where(stat => stat.ClientId == query.ClientId)
                 .Where(stat => serverId == null || stat.ServerId == serverId)
-                .Where(stat => stat.Server.PerformanceBucket == query.PerformanceBucket)
+                .Where(stat => stat.Server.PerformanceBucket.Code == query.PerformanceBucketCode)
                 .ToListAsync();
 
             var bucketConfig = await statManager.GetBucketConfig(serverId);
@@ -126,12 +126,12 @@ namespace Stats.Helpers
                     {
                         Name = server.Hostname, IPAddress = server.ListenAddress, Port = server.ListenPort,
                         Game = (Reference.Game)server.GameName,
-                        PerformanceBucket = server.PerformanceBucket
+                        PerformanceBucket = server.PerformanceCode
                     })
                     .Where(server => server.Game == clientInfo.GameName)
                     .ToList(),
                 Aggregate = hitStats.FirstOrDefault(hit =>
-                    hit.HitLocationId == null && (string.IsNullOrEmpty(query.PerformanceBucket) || hit.ServerId == serverId) && hit.WeaponId == null &&
+                    hit.HitLocationId == null && (string.IsNullOrEmpty(query.PerformanceBucketCode) || hit.ServerId == serverId) && hit.WeaponId == null &&
                     hit.MeansOfDeathId == null),
                 ByHitLocation = hitStats
                     .Where(hit => hit.HitLocationId != null)
@@ -186,9 +186,9 @@ namespace Stats.Helpers
 
             var currentRanking = 0;
             int totalRankedClients;
-            string performanceBucket;
+            string performanceBucketCode;
 
-            if (string.IsNullOrEmpty(query.PerformanceBucket) && serverId is null)
+            if (string.IsNullOrEmpty(query.PerformanceBucketCode) && serverId is null)
             {
                 var maxPerformance = await context.Set<EFClientRankingHistory>()
                     .Where(r => r.ClientId == query.ClientId)
@@ -204,27 +204,27 @@ namespace Stats.Helpers
                 {
                     currentRanking = 0;
                     totalRankedClients = 0;
-                    performanceBucket = null;
+                    performanceBucketCode = null;
                 }
                 else
                 {
                     currentRanking =
-                        await statManager.GetClientOverallRanking(query.ClientId!.Value, null, maxPerformance.Key);
-                    totalRankedClients = await serverDataViewer.RankedClientsCountAsync(null, maxPerformance.Key);
-                    performanceBucket = maxPerformance.Key;
+                        await statManager.GetClientOverallRanking(query.ClientId!.Value, null, maxPerformance.Key.Code);
+                    totalRankedClients = await serverDataViewer.RankedClientsCountAsync(null, maxPerformance.Key.Code);
+                    performanceBucketCode = maxPerformance.Key.Code;
                 }
             }
             else
             {
-                performanceBucket = query.PerformanceBucket;
+                performanceBucketCode = query.PerformanceBucketCode;
                 currentRanking =
-                    await statManager.GetClientOverallRanking(query.ClientId!.Value, serverId, performanceBucket);
-                totalRankedClients = await serverDataViewer.RankedClientsCountAsync(serverId, performanceBucket);
+                    await statManager.GetClientOverallRanking(query.ClientId!.Value, serverId, performanceBucketCode);
+                totalRankedClients = await serverDataViewer.RankedClientsCountAsync(serverId, performanceBucketCode);
             }
 
             return new ResourceQueryHelperResult<ClientRankingInfo>
             {
-                Results = [new ClientRankingInfo(currentRanking, totalRankedClients, performanceBucket)]
+                Results = [new ClientRankingInfo(currentRanking, totalRankedClients, performanceBucketCode)]
             };
         }
     }

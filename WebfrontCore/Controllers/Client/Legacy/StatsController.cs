@@ -72,7 +72,7 @@ namespace WebfrontCore.Controllers.Client.Legacy
                     IPAddress = selectedServer.ListenAddress,
                     Port = selectedServer.ListenPort,
                     Game = selectedServer.GameCode,
-                    PerformanceBucket = selectedServer.PerformanceBucket
+                    PerformanceBucket = selectedServer.PerformanceCode
                 }));
         }
 
