@@ -5,6 +5,8 @@ namespace Stats.Dtos
 {
     public class ChatSearchQuery : ClientPaginationRequest
     {
+        private int? _queryClientId;
+
         /// <summary>
         /// specifies the partial content of the message to search for
         /// </summary>
@@ -18,7 +20,11 @@ namespace Stats.Dtos
         /// <summary>
         /// identifier for the client
         /// </summary>
-        public new int? ClientId { get; set; }
+        public int? QueryClientId
+        {
+            get => _queryClientId ?? ClientId;
+            set => _queryClientId = value;
+        }
 
         /// <summary>
         /// only look for messages sent after this date
@@ -41,9 +47,9 @@ namespace Stats.Dtos
 
         public DateTime? SentBeforeDateTime =>
             SentBefore.Add(string.IsNullOrEmpty(SentBeforeTime) ? TimeSpan.Zero : TimeSpan.Parse(SentBeforeTime));
-        
+
         public bool IsExactMatch { get; set; }
-        
+
         /// <summary>
         /// indicates if the chat is on the meta page
         /// </summary>

@@ -4,7 +4,6 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SharedLibraryCore;
@@ -25,6 +24,8 @@ using System.Threading.Tasks;
 using Data.Abstractions;
 using Data.Helpers;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
 using WebfrontCore.Controllers.API.Validation;
 using WebfrontCore.Middleware;
 using WebfrontCore.QueryHelpers;
@@ -37,6 +38,9 @@ namespace WebfrontCore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen(options => options.SwaggerDoc("v1", new OpenApiInfo { Title = "IW4MAdmin API", Version = "v1" }));
+
             // allow CORS
             services.AddCors(_options =>
             {
@@ -149,8 +153,19 @@ namespace WebfrontCore
             app.UseRouting();
             app.UseAuthorization();
             app.UseRateLimiter();
+            app.UseSwagger();
+
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapSwagger("openapi/{documentName}.json");
+                endpoints.MapScalarApiReference(options =>
+                {
+                    options.WithTitle("IW4MAdmin API")
+                        .WithTheme(ScalarTheme.DeepSpace)
+                        .WithDefaultHttpClient(ScalarTarget.Python, ScalarClient.Requests)
+                        .WithModels(false);
+                });
+
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}")
                     .RequireRateLimiting("concurrencyPolicy");
             });

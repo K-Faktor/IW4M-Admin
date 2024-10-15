@@ -60,9 +60,9 @@ namespace Stats.Helpers
                 iqMessages = iqMessages.Where(message => message.TimeSent >= query.SentAfterDateTime);
             }
 
-            if (query.ClientId is not null)
+            if (query.QueryClientId is not null)
             {
-                iqMessages = iqMessages.Where(message => message.ClientId == query.ClientId.Value);
+                iqMessages = iqMessages.Where(message => message.ClientId == query.QueryClientId.Value);
             }
 
             if (query.ServerId is not null)

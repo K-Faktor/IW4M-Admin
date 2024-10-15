@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace IW4MAdmin.Plugins.LiveRadar.Web.Controllers
 {
+    [Route("Radar/{serverId}")]
     public class RadarController : BaseController
     {
         private readonly IManager _manager;
@@ -21,8 +22,7 @@ namespace IW4MAdmin.Plugins.LiveRadar.Web.Controllers
         }
 
         [HttpGet]
-        [Route("Radar/{serverId?}")]
-        public IActionResult Index(string serverId = null)
+        public IActionResult Index(string? serverId = null)
         {
             var servers = _manager.GetServers()
                 .Where(server => server.GameName == Server.Game.IW4)
@@ -42,7 +42,7 @@ namespace IW4MAdmin.Plugins.LiveRadar.Web.Controllers
         }
 
         [HttpGet]
-        [Route("Radar/{serverId}/Map")]
+        [Route("Map")]
         public IActionResult Map(string serverId = null)
         {
             var server = serverId == null
@@ -67,7 +67,7 @@ namespace IW4MAdmin.Plugins.LiveRadar.Web.Controllers
         }
 
         [HttpGet]
-        [Route("Radar/{serverId}/Data")]
+        [Route("Data")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Data(string serverId = null)
         {
