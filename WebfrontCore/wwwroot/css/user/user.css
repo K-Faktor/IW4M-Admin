@@ -1,1 +1,201 @@
-/* include your custom css rules here */
+/* ============================================================================
+   IW4M-Admin — user.css
+   Тема: "NEURAL/AI" — тёмный неон, циановый primary, фиолетовый secondary
+   Переопределяет переменные всех пресетов + добавляет эффекты
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   1. Базовые акцентные цвета (HSL-компоненты primary/secondary)
+   --------------------------------------------------------------------------- */
+:root {
+    /* Primary: неоновый циан */
+    --color-primary-h: 190;
+    --color-primary-s: 100%;
+    --color-primary-l: 55%;
+
+    /* Secondary: электрический фиолетовый */
+    --color-secondary-h: 265;
+    --color-secondary-s: 90%;
+    --color-secondary-l: 65%;
+
+    /* Статусные цвета — тоже в неоновой гамме */
+    --color-success: hsl(150 100% 55%);
+    --color-warning: hsl(45 100% 60%);
+    --color-error:   hsl(340 100% 62%);
+    --color-info:    hsl(190 100% 60%);
+}
+
+/* ---------------------------------------------------------------------------
+   2. Палитра поверхностей/текста — едина для всех трёх пресетов,
+      чтобы тема не «ломалась» при переключении preset'а в настройках
+   --------------------------------------------------------------------------- */
+:root,
+[data-theme="minimal"],
+[data-theme="balanced"],
+[data-theme="high-contrast"] {
+    /* Фон: глубокий космос с холодным подтоном */
+    --color-background: hsl(230 35% 6%);
+    --color-surface:    hsl(230 30% 10%);
+    --color-surface-alt: hsl(230 28% 8%);
+    --color-surface-hover: hsl(230 25% 15%);
+
+    /* Текст */
+    --color-foreground: hsl(210 40% 96%);
+    --color-subtle:     hsl(215 25% 72%);
+    --color-muted:      hsl(220 15% 50%);
+    --color-accent:     var(--color-secondary-300);
+
+    /* Линии и бордеры */
+    --color-line:        hsl(230 30% 22%);
+    --color-line-hover:  hsl(190 80% 45%);
+    --color-ring:        var(--color-primary);
+    --color-divider:     hsl(230 30% 18%);
+
+    /* Кнопки */
+    --color-action-primary:       var(--color-primary);
+    --color-action-primary-hover: var(--color-primary-300);
+    --color-action-secondary:     hsl(230 30% 18%);
+    --color-action-secondary-hover: hsl(230 25% 26%);
+    --color-action-disabled:      hsl(230 15% 20%);
+
+    /* Инпуты */
+    --color-input-bg:          hsl(230 35% 7%);
+    --color-input-border:      hsl(230 30% 22%);
+    --color-input-border-hover: hsl(190 80% 40%);
+    --color-input-border-focus: var(--color-primary);
+    --color-input-placeholder: hsl(220 15% 42%);
+
+    /* Таблицы */
+    --color-table-header:  hsl(230 35% 14%);
+    --color-table-row-alt: hsl(230 32% 8%);
+    --color-table-row-hover: hsl(230 30% 16%);
+
+    /* Градиент заголовков */
+    --color-title-gradient-start: var(--color-primary-300);
+    --color-title-gradient-end:   var(--color-secondary-300);
+
+    /* Тени для неона (кастомные, основные стили их не знают) */
+    --ai-glow-primary:   0 0 12px hsl(190 100% 55% / 0.45), 0 0 32px hsl(190 100% 55% / 0.18);
+    --ai-glow-secondary: 0 0 12px hsl(265 90% 65% / 0.45), 0 0 32px hsl(265 90% 65% / 0.18);
+}
+
+/* ---------------------------------------------------------------------------
+   3. Глобальные эффекты
+   --------------------------------------------------------------------------- */
+
+/* Фон страницы: мягкий радиальный градиент поверх базового цвета */
+body {
+    background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, hsl(265 90% 30% / 0.25), transparent 60%),
+        radial-gradient(ellipse 60% 40% at 90% 110%, hsl(190 100% 40% / 0.12), transparent 60%),
+        var(--color-background);
+    background-attachment: fixed;
+}
+
+/* Тонкая "сетка" поверх фона — технологичный вид */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+        linear-gradient(hsl(190 100% 60% / 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, hsl(190 100% 60% / 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+/* Карточки: полупрозрачное стекло + подсветка рамки */
+[class*="surface"],
+.bg-surface,
+.card {
+    background: hsl(230 30% 12% / 0.75) !important;
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--color-line);
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.05);
+}
+
+/* Анимированный градиентный заголовок */
+.text-gradient-title {
+    background: linear-gradient(90deg,
+        var(--color-primary-300),
+        var(--color-secondary-300),
+        var(--color-primary-300));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: ai-gradient-slide 6s linear infinite;
+}
+
+@keyframes ai-gradient-slide {
+    0%   { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+
+/* Primary-кнопки: неоновое свечение */
+.btn-primary,
+button[class*="primary"] {
+    box-shadow: var(--ai-glow-primary);
+    transition: box-shadow 0.25s ease, transform 0.15s ease;
+}
+
+.btn-primary:hover,
+button[class*="primary"]:hover {
+    box-shadow: 0 0 16px hsl(190 100% 60% / 0.65), 0 0 44px hsl(190 100% 60% / 0.3);
+    transform: translateY(-1px);
+}
+
+/* Ссылки — циановый неон при наведении */
+a {
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+a:hover {
+    text-shadow: 0 0 10px hsl(190 100% 60% / 0.6);
+}
+
+/* Поля ввода: свечение при фокусе */
+input:focus, select:focus, textarea:focus {
+    box-shadow: 0 0 0 1px var(--color-primary), var(--ai-glow-primary);
+}
+
+/* Строки таблиц: плавный переход и левый неоновый акцент при наведении */
+tr {
+    transition: background 0.15s ease;
+}
+
+/* Полоса загрузки навигации — яркий неоновый бегунок */
+.loading-bar {
+    height: 3px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--color-primary) 30%,
+        var(--color-secondary) 50%,
+        var(--color-primary) 70%,
+        transparent 100%);
+    background-size: 200% 100%;
+    box-shadow: 0 0 12px var(--color-primary);
+}
+
+/* Скроллбар — неоновый, с градиентом бегунка */
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--color-primary), var(--color-secondary));
+    box-shadow: 0 0 8px hsl(190 100% 55% / 0.5);
+}
+
+* {
+    scrollbar-color: var(--color-primary) var(--color-surface-alt);
+}
+
+/* Выделение текста */
+::selection {
+    background: hsl(190 100% 50% / 0.35);
+    color: hsl(0 0% 100%);
+}
+
+/* Курсор-маркер: мигающий "AI"-карет */
+@keyframes ai-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.25; }
+}
